@@ -4,6 +4,10 @@ import cookieParser from "cookie-parser"
 import dotenv from "dotenv"
 import ConnectDB from "./utils/db.js"
 
+
+// Routes
+import authRoute from "./routes/authRoutes.js"
+
 const app = express()
 
 dotenv.config()
@@ -21,6 +25,10 @@ app.use(cors({ credentials: true }))
 app.get("/", (req, res) => {
     res.send("I am coming from backend")
 })
+
+
+// apis
+app.use("/api/v1/user", authRoute)
 
 
 // Connect to DB first, then start server
