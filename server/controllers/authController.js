@@ -1,6 +1,7 @@
 import { User } from "../models/userModel.js";
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
+import transporter from "../utils/nodemailer.js";
 
 export const registerUser = async (req, res) => {
 
@@ -12,6 +13,8 @@ export const registerUser = async (req, res) => {
             message: "All Fields are Required"
         })
     }
+
+
 
     try {
         const user = await User.findOne({ email })
@@ -34,12 +37,24 @@ export const registerUser = async (req, res) => {
 
         const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET_KEY, { expiresIn: '1d' })
 
-        return res.cookie('token', token, {
+        res.cookie('token', token, {
             httpOnly: true,
             sameSite: 'strict',
             secure: process.env.NODE_ENV === "production",
             maxAge: 24 * 60 * 60 * 1000
-        }).status(201).json({
+        })
+
+        // sending welcome email
+        const mailOptions = {
+            from: process.env.SENDER_EMAIL,
+            to: email,
+            subject: "Verify Your Email to Activate Your Account",
+            text: `Welcome to Our Website. Your accunt has been created with email id: ${email}`
+        }
+
+        await transporter.sendMail(mailOptions);
+
+        return res.status(201).json({
             success: true,
             message: "Account Created Successfully",
             newUser
