@@ -8,6 +8,7 @@ dotenv.config()
 
 // Routes
 import authRoute from "./routes/authRoutes.js"
+import userRoute from "./routes/userRoute.js"
 
 const app = express()
 
@@ -28,7 +29,8 @@ app.get("/", (req, res) => {
 
 
 // apis
-app.use("/api/v1/user", authRoute)
+app.use("/api/v1/auth", authRoute)
+app.use("/api/v1/user", userRoute)
 
 
 // Connect to DB first, then start server
