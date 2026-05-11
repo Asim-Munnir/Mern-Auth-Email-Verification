@@ -1,11 +1,31 @@
 import React, { useContext } from 'react'
 import { assets } from '../assets/assets.js'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { AppContext } from '../context/AppContext.jsx'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const Navbar = () => {
 
-    const { userData, backendUrl, setIsLoggedIn } = useContext(AppContext)
+    const { userData, backendUrl, setIsLoggedIn, setUserData } = useContext(AppContext)
+    const navigate = useNavigate()
+
+    const logout = async () => {
+        try {
+            const res = await axios.post(backendUrl + '/api/v1/auth/logout', {}, { withCredentials: true })
+            if (res.data.success) {
+                toast.success(res.data.message)
+                setIsLoggedIn(false)
+                setUserData(false)
+                navigate("/")
+            }
+        } catch (error) {
+            console.log(error)
+            toast.error(
+                error.response?.data?.message || error.message
+            )
+        }
+    }
 
     return (
         <div className='w-full flex justify-between items-center p-4 sm:p-6 sm:px-24 absolute top-0'>
@@ -19,7 +39,7 @@ const Navbar = () => {
                                 {
                                     !userData.isAccountVerified && <li className='py-1 px-2 hover:bg-gray-200 cursor-pointer'>Verify Email</li>
                                 }
-                                <li className='py-1 px-2 hover:bg-gray-200 cursor-pointer pr-10'>Logout</li>
+                                <li onClick={() => logout()} className='py-1 px-2 hover:bg-gray-200 cursor-pointer pr-10'>Logout</li>
                             </ul>
                         </div>
                     </div>
