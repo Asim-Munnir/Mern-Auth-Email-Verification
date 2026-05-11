@@ -1,12 +1,82 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { assets } from '../assets/assets.js'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { AppContext } from '../context/AppContext.jsx'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const Login = () => {
+
+    const navigate = useNavigate()
+    const { backendUrl, setIsLoggedIn, getUserData} = useContext(AppContext)
+
     const [state, setState] = useState('Sign Up')
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [loading, setLoading] = useState(false)
+
+    const onSubmitHandler = async (e) => {
+        try {
+            e.preventDefault();
+            setLoading(true)
+            // Sign Up API
+
+            if (state === 'Sign Up') {
+                const res = await axios.post(backendUrl + '/api/v1/auth/register', {
+                    name,
+                    email,
+                    password
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    withCredentials: true
+                })
+
+                if (res.data.success) {
+                    toast.success(res.data.message)
+                    setIsLoggedIn(true)
+                    getUserData()
+                    navigate("/")
+                } else {
+                    toast.error(res.data.message)
+                }
+            } else {
+                // Sign In API
+                const res = await axios.post(backendUrl + '/api/v1/auth/login', {
+                    email,
+                    password
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    withCredentials: true
+                })
+
+                if (res.data.success) {
+                    toast.success(res.data.message)
+                    setIsLoggedIn(true)
+                    getUserData()
+                    navigate("/")
+                } else {
+                    toast.error(res.data.message)
+                }
+
+            }
+        } catch (error) {
+            console.log(error)
+
+            toast.error(
+                error.response?.data?.message || error.message
+            )
+        } finally {
+            setLoading(false)
+            setName('')
+            setEmail('')
+            setPassword('')
+        }
+    }
 
     return (
         <div className='flex items-center justify-center min-h-screen px-6 sm:px-0 bg-gradient-to-br from-blue-200 to-purple-400'>
@@ -18,7 +88,7 @@ const Login = () => {
                 <h2 className='text-3xl font-semibold text-white text-center mb-3'>{state === 'Sign Up' ? 'Create Account' : 'Login'}</h2>
                 <p className='text-center text-sm mb-6'>{state === 'Sign Up' ? 'Create your account' : 'Login to your account...!'}</p>
 
-                <form>
+                <form onSubmit={onSubmitHandler}>
                     {/* Name */}
 
                     {
@@ -47,7 +117,11 @@ const Login = () => {
                         <p className='mb-4 text-indigo-500 cursor-pointer'>Forgot Password?</p>
                     </Link>
 
-                    <button className='w-full py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-900 text-white font-medium'>{state}</button>
+                    <button className='w-full py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-900 text-white font-medium'>
+                        {
+                            loading ? 'Loading...' : state
+                        }
+                    </button>
                 </form>
 
                 {

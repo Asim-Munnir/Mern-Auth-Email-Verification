@@ -255,6 +255,23 @@ export const verifyEmail = async (req, res) => {
 }
 
 
+// check if user is authenticated
+
+export const isAuthenticatedUser = async (req, res) => {
+    try {
+        return res.json({
+            success: true
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            error: error.message
+        })
+    }
+}
+
+
 // send password reset OTP
 
 export const sendResetOtp = async (req, res) => {
