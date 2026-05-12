@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { assets } from '../assets/assets.js'
 import axios from 'axios'
@@ -63,6 +63,12 @@ const EmailVerify = () => {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (isloggedIn && userData && userData.isAccountVerified) {
+      navigate("/")
+    }
+  }, [userData, isloggedIn])
 
   return (
     <div className='flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-200 to-purple-400'>
